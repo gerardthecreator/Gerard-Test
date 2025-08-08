@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcial de Física I - Dinámica</title>
+    
+    <!-- 1. Fuentes de Google Fonts: Anton y Oswald -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- 2. MathJax v3 para renderizar ecuaciones -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* 3. Estilos CSS3 */
+        :root {
+            --bg-color: #1a1a2e;
+            --primary-color: #16213e;
+            --secondary-color: #0f3460;
+            --accent-color: #e94560;
+            --text-color: #e0e0e0;
+            --font-title: 'Anton', sans-serif;
+            --font-body: 'Oswald', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--primary-color);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 2px solid var(--secondary-color);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-family: var(--font-title);
+            color: var(--accent-color);
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        #timer {
+            font-family: var(--font-title);
+            font-size: 2.5rem;
+            color: #fff;
+            background-color: var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        main {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .simulation, .problem {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        h2 {
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--secondary-color);
+            padding-bottom: 5px;
+        }
+
+        p, li {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        canvas {
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            width: 100%;
+            height: auto;
+        }
+
+        #quiz-form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid var(--secondary-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--accent-color);
+            color: white;
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #ff6384;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #submission-status {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--accent-color);
+            display: none; /* Oculto por defecto */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Parcial de Física I: Dinámica</h1>
+            <div id="timer">10:00</div>
+        </header>
+        <main>
+            <div class="simulation">
+                <h2>Representación Gráfica</h2>
+                <!-- 4. Canvas para la animación -->
+                <canvas id="physics-canvas" width="400" height="250"></canvas>
+            </div>
+            <div class="problem">
+                <h2>Problema a Resolver</h2>
+                <p>
+                    Un bloque de masa $m = 5$ kg se encuentra sobre un plano inclinado que forma un ángulo $\theta = 30^\circ$ con la horizontal. El coeficiente de fricción cinética entre el bloque y el plano es $\mu_k = 0.2$.
+                </p>
+                <p>
+                    Si el bloque parte del reposo, calcule:
+                </p>
+                <ol>
+                    <li>La magnitud de la fuerza normal ($N$).</li>
+                    <li>La magnitud de la fuerza de fricción ($f_k$).</li>
+                    <li>La aceleración del bloque ($a$).</li>
+                </ol>
+                <p>Use $g = 9.8$ m/s$^2$.</p>
+
+                <form id="quiz-form">
+                    <div class="input-group">
+                        <label for="respuesta_n">Respuesta Fuerza Normal (N):</label>
+                        <input type="number" id="respuesta_n" name="fuerza_normal" step="any" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="respuesta_fk">Respuesta Fuerza de Fricción (N):</label>
+                        <input type="number" id="respuesta_fk" name="fuerza_friccion" step="any" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="respuesta_a">Respuesta Aceleración (m/s²):</label>
+                        <input type="number" id="respuesta_a" name="aceleracion" step="any" required>
+                    </div>
+                    <button type="submit" id="submit-button">Enviar Respuestas</button>
+                </form>
+                <div id="submission-status"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 5. JavaScript (ES15/ES6+) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURACIÓN ---
+            const canvas = document.getElementById('physics-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const form = document.getElementById('quiz-form');
+            const submitButton = document.getElementById('submit-button');
+            const statusDiv = document.getElementById('submission-status');
+            const timerDiv = document.getElementById('timer');
+
+            // --- LÓGICA DEL TEMPORIZADOR ---
+            let timeLeft = 10 * 60; // 10 minutos en segundos
+            let timerInterval;
+
+            const startTimer = () => {
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerDiv.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        timerDiv.textContent = "00:00";
+                        alert("¡Se acabó el tiempo! El formulario se ha bloqueado.");
+                        disableQuiz();
+                    }
+                }, 1000);
+            };
+
+            // --- LÓGICA DE LA ANIMACIÓN DEL CANVAS ---
+            const angle = 30 * Math.PI / 180; // 30 grados en radianes
+            let blockX = 50;
+            let blockY = 50;
+            let velocity = 0;
+            const g = 0.1; // Gravedad simulada para la animación
+            const mu_k = 0.2;
+            const acceleration = g * (Math.sin(angle) - mu_k * Math.cos(angle));
+
+            function drawRamp() {
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height - 50);
+                ctx.lineTo(canvas.width, canvas.height - 50);
+                ctx.lineTo(canvas.width, canvas.height - 50 - canvas.width * Math.tan(angle));
+                ctx.closePath();
+                ctx.fillStyle = '#6c757d';
+                ctx.fill();
+            }
+
+            function drawBlock(x, y) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                ctx.fillStyle = '#e94560';
+                ctx.fillRect(0, -20, 30, 20); // Dibuja el bloque
+                ctx.restore();
+            }
+            
+            function animate() {
+                velocity += acceleration;
+                blockX += velocity * Math.cos(angle);
+                blockY += velocity * Math.sin(angle);
+
+                // Reiniciar si se sale del canvas
+                if (blockX > canvas.width || blockY > canvas.height) {
+                    blockX = 50;
+                    blockY = 50 + (50 * Math.tan(angle));
+                    velocity = 0;
+                }
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawRamp();
+                drawBlock(blockX, blockY);
+
+                requestAnimationFrame(animate);
+            }
+
+            // --- LÓGICA DEL FORMULARIO ---
+            const disableQuiz = () => {
+                clearInterval(timerInterval);
+                form.querySelectorAll('input').forEach(input => input.disabled = true);
+                submitButton.disabled = true;
+                submitButton.textContent = "Enviado";
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevenir el envío tradicional
+                submitButton.disabled = true;
+                submitButton.textContent = 'Enviando...';
+
+                const formData = new FormData(form);
+                const data = {
+                    fuerza_normal: formData.get('fuerza_normal'),
+                    fuerza_friccion: formData.get('fuerza_friccion'),
+                    aceleracion: formData.get('aceleracion'),
+                    tiempo_restante: timerDiv.textContent
+                };
+
+                // Enviar datos al backend de Python
+                try {
+                    // El servidor Python debe estar corriendo en http://127.0.0.1:5000
+                    const response = await fetch('/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        statusDiv.textContent = "¡Respuestas enviadas con éxito! Ya no puedes modificar el formulario.";
+                    } else {
+                        throw new Error(result.error || 'Error desconocido al enviar.');
+                    }
+                    
+                } catch (error) {
+                    statusDiv.textContent = `Error al enviar: ${error.message}. Intenta de nuevo si es posible.`;
+                    submitButton.disabled = false; // Permitir reintento si falla la red
+                } finally {
+                    statusDiv.style.display = 'block';
+                    disableQuiz();
+                }
+            });
+
+            // --- INICIAR TODO ---
+            startTimer();
+            // La animación se inicia al cargar la página
+            blockY = 50 + (50 * Math.tan(angle)); // Posición inicial correcta
+            requestAnimationFrame(animate);
+        });
+    </script>
+</body>
+</html>
